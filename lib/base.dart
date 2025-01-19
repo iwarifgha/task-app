@@ -1,8 +1,8 @@
 
 import 'package:flutter/material.dart';
-import 'package:task_app/lib/task_app/features/authentication/controller/service/auth_service.dart';
-import 'package:task_app/lib/task_app/features/authentication/view/welcome.dart';
-import 'package:task_app/lib/task_app/features/tasks/view/home.dart';
+import 'package:task_app/task_app/features/authentication/controller/service/auth_service.dart';
+import 'package:task_app/task_app/features/authentication/view/welcome.dart';
+import 'package:task_app/task_app/features/tasks/view/home.dart';
 
 class Base extends StatelessWidget {
     Base({super.key});
@@ -21,7 +21,6 @@ class Base extends StatelessWidget {
               ),
             );
           }
-
           if (snapshot.hasData && snapshot.data != null){
             return const HomeView();
           } else {
