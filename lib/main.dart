@@ -5,10 +5,9 @@ import 'package:provider/provider.dart';
 import 'package:task_app/task_app/features/authentication/view/sign_in.dart';
 import 'package:task_app/task_app/features/authentication/view/sign_up.dart';
 import 'package:task_app/task_app/features/authentication/view/welcome.dart';
-import 'package:task_app/task_app/features/tasks/controller/state/task_provider.dart';
-import 'package:task_app/task_app/features/tasks/view/add_task.dart';
-import 'package:task_app/task_app/features/tasks/view/home.dart';
-
+import 'package:task_app/task_app/features/home/controller/state/home_state_provider.dart';
+import 'package:task_app/task_app/features/home/view/add_task.dart';
+import 'package:task_app/task_app/features/home/view/home.dart';
 import 'base.dart';
 
 Future<void> main() async {
@@ -16,10 +15,12 @@ Future<void> main() async {
   await Firebase.initializeApp();
   runApp(MultiProvider(
     providers: [
-      ChangeNotifierProvider(create: (context) => TaskProvider())
+      ChangeNotifierProvider(create: (context) => HomeStateProvider()),
+
     ],
     builder: (context, _){
       return  MaterialApp(
+        debugShowCheckedModeBanner: false,
         routes: {
           '/' : (context) =>  Base(),
           '/welcome' : (context) => const WelcomeView(),

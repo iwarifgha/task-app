@@ -6,7 +6,7 @@ import '../../../../services/api/firebase/firebase_auth_service.dart';
 import '../../../../services/api/firebase/firestore_database_service.dart';
 import '../../model/task_model.dart';
 
-class TaskProvider with ChangeNotifier {
+class HomeStateProvider with ChangeNotifier {
   List<Task> _tasks = [];
 
   List<Task> get tasks => _tasks;
@@ -15,7 +15,7 @@ class TaskProvider with ChangeNotifier {
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
-  Future<void> addTask(String title, description, userId) async {
+  Future<void> addTaskToHome(String title, description, userId) async {
     final currentUser = _firebaseAuthProvider.getUser();
 
     final task = Task(
@@ -38,19 +38,19 @@ class TaskProvider with ChangeNotifier {
     }
   }
 
-  Future<void> fetchTasks(String userId) async {
+  Future<void> fetchTasksForHome(String userId) async {
     try {
       _tasks = await _fireStoreDatabaseServiceProvider.fetchTasks(userId);
       _errorMessage = null;
       notifyListeners();
     } catch (e) {
-      _errorMessage = 'Failed to fetch your tasks. Please try again';
+      _errorMessage = 'Failed to fetch your home. Please try again';
     } finally {
       notifyListeners();
     }
   }
 
-  Future<void> deleteTask(String taskId) async {
+  Future<void> deleteTaskOnHome(String taskId) async {
     try {
       await _fireStoreDatabaseServiceProvider.deleteTask(taskId);
       _tasks.removeWhere((task) => task.id == taskId);
@@ -63,7 +63,7 @@ class TaskProvider with ChangeNotifier {
     }
   }
 
-  Future<void> editTask(
+  Future<void> editTaskOnHome(
       {required String taskId, required String title, required String description}) async {
     try {
       final taskIndex = _tasks.indexWhere((task) => task.id == taskId);
@@ -91,4 +91,5 @@ class TaskProvider with ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
   }
+
 }

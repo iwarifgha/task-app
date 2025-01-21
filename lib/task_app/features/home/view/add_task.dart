@@ -2,7 +2,7 @@
 import 'package:provider/provider.dart';
 
 import '../../authentication/controller/service/auth_service.dart';
-import '../controller/state/task_provider.dart';
+import '../controller/state/home_state_provider.dart';
 
 class AddTaskView extends StatefulWidget {
   const AddTaskView({super.key});
@@ -12,7 +12,7 @@ class AddTaskView extends StatefulWidget {
 }
 
 class _AddTaskViewState extends State<AddTaskView> {
-  final _authProvider = TodoAuthProvider();
+  final _authProvider = TaskAppAuthServiceProvider();
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
 
@@ -21,12 +21,12 @@ class _AddTaskViewState extends State<AddTaskView> {
       required String description,
       required String userID,
        }) {
-    context.read<TaskProvider>().addTask(title, description, userID);
+    context.read<HomeStateProvider>().addTaskToHome(title, description, userID);
   }
 
   @override
   Widget build(BuildContext context) {
-    final taskProvider = context.read<TaskProvider>();
+    final taskProvider = context.read<HomeStateProvider>();
     final errorMessage = taskProvider.errorMessage;
     return Scaffold(
       appBar: AppBar(

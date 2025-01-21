@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../controller/state/task_provider.dart';
+import '../controller/state/home_state_provider.dart';
 import '../model/task_model.dart';
 
 class EditTaskView extends StatefulWidget {
@@ -18,7 +18,7 @@ class _EditTaskViewState extends State<EditTaskView> {
   late TextEditingController _descriptionController;
 
   _editTask() {
-    context.read<TaskProvider>().editTask(
+    context.read<HomeStateProvider>().editTaskOnHome(
         taskId: widget.task.id,
         title: _titleController.text.trim(),
         description: _descriptionController.text.trim());
@@ -34,7 +34,7 @@ class _EditTaskViewState extends State<EditTaskView> {
 
   @override
   Widget build(BuildContext context) {
-    final taskProvider = context.read<TaskProvider>();
+    final taskProvider = context.read<HomeStateProvider>();
     final errorMessage = taskProvider.errorMessage;
     return Scaffold(
         appBar: AppBar(

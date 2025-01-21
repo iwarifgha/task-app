@@ -3,7 +3,8 @@ import 'package:provider/provider.dart';
 
 import '../../../components/error_notifier.dart';
 import '../../authentication/controller/service/auth_service.dart';
-import '../controller/state/task_provider.dart';
+import '../../authentication/controller/state/auth_state_provider.dart';
+import '../controller/state/home_state_provider.dart';
 import 'edit_task.dart';
 
 class HomeView extends StatefulWidget {
@@ -14,24 +15,28 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
-  final authProvider = TodoAuthProvider();
+  final authProvider = TaskAppAuthServiceProvider();
 
   @override
   void initState() {
     final user = authProvider.getCurrentUser();
     setState(() {
-      Provider.of<TaskProvider>(context, listen: false).fetchTasks(user.uid);
+      Provider.of<HomeStateProvider>(context, listen: false).fetchTasksForHome(user.uid);
     });
     super.initState();
   }
 
   _deleteTask({required String taskId}) {
-    context.read<TaskProvider>().deleteTask(taskId);
+    context.read<HomeStateProvider>().deleteTaskOnHome(taskId);
+  }
+
+  _signOut() {
+    context.read<AuthStateProvider>().signOut();
   }
 
   @override
   Widget build(BuildContext context) {
-    final taskProvider = context.watch<TaskProvider>();
+    final taskProvider = context.watch<HomeStateProvider>();
     final tasks = taskProvider.tasks;
     final errorMessage = taskProvider.errorMessage;
     final user = authProvider.getCurrentUser();
@@ -39,17 +44,20 @@ class _HomeViewState extends State<HomeView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Home'),
+        actions: [
+          IconButton(onPressed: _signOut , icon: Icon(Icons.logout))
+        ]
       ),
       body: errorMessage != null
           ? ErrorNotifier(
               message: errorMessage,
               onTap: () {
                 taskProvider.clearError();
-                taskProvider.fetchTasks(user.uid);
+                taskProvider.fetchTasksForHome(user.uid);
               })
           : tasks.isEmpty
               ? const Center(
-                  child: Text('No tasks'),
+                  child: Text('No Tasks'),
                 )
               : ListView.builder(
                   itemCount: tasks.length,
@@ -74,16 +82,9 @@ class _HomeViewState extends State<HomeView> {
                             IconButton(
                                 onPressed: () {
                                   taskProvider.clearError();
-
                                   _deleteTask(
                                     taskId: task.id,
                                   );
-
-                                  if (errorMessage != null) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(content: Text(errorMessage)));
-                                    return;
-                                  }
                                 },
                                 icon: const Icon(Icons.delete))
                           ],

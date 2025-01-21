@@ -12,7 +12,7 @@ class SignInView extends StatefulWidget {
 }
 
 class _SignInViewState extends State<SignInView> {
-  final _authProvider = TodoAuthProvider();
+  final _authProvider = TaskAppAuthServiceProvider();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 

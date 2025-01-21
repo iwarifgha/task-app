@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../../services/api/firebase/firebase_auth_service.dart';
 
-class TodoAuthProvider {
+class TaskAppAuthServiceProvider {
   final firebaseAuthProvider = FirebaseAuthService();
 
   User getCurrentUser() {
@@ -39,7 +39,7 @@ class TodoAuthProvider {
     }
   }
 
-  Future<void> signOut({required String email, required String password}) async {
+  Future<void> signOut() async {
     try {
       await firebaseAuthProvider.signOut();
     } catch (e) {
