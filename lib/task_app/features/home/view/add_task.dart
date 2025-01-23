@@ -6,6 +6,7 @@ import '../controller/state/home_state_provider.dart';
 
 class AddTaskView extends StatefulWidget {
   const AddTaskView({super.key});
+  static const path = '/add_task';
 
   @override
   State<AddTaskView> createState() => _AddTaskViewState();

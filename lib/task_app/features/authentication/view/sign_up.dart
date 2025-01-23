@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../controller/service/auth_service.dart';
 
 class SignUpView extends StatefulWidget {
+  static const path = '/sign_up';
   const SignUpView({super.key});
 
   @override

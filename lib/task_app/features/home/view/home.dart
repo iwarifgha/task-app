@@ -8,6 +8,7 @@ import '../controller/state/home_state_provider.dart';
 import 'edit_task.dart';
 
 class HomeView extends StatefulWidget {
+  static const path = '/home';
   const HomeView({super.key});
 
   @override
@@ -45,7 +46,11 @@ class _HomeViewState extends State<HomeView> {
       appBar: AppBar(
         title: const Text('Home'),
         actions: [
-          IconButton(onPressed: _signOut , icon: Icon(Icons.logout))
+          IconButton(onPressed: (){
+            _signOut;
+            Navigator.of(context).pop;
+          },
+              icon: Icon(Icons.logout))
         ]
       ),
       body: errorMessage != null

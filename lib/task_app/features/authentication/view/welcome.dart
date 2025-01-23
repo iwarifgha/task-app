@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:task_app/task_app/features/authentication/controller/state/auth_state_provider.dart';
+import 'package:task_app/task_app/features/authentication/view/sign_in.dart';
+import 'package:task_app/task_app/features/authentication/view/sign_up.dart';
 
 class WelcomeView extends StatelessWidget {
+  static const path = '/welcome';
   const WelcomeView({super.key});
 
   @override
@@ -12,14 +18,17 @@ class WelcomeView extends StatelessWidget {
       body: Center(
         child: Column(
           children: [
-            const Text(
-                'Welcome, Please sign in below. Already have an account? Then Sign in'),
+            Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: const Text(
+                  'Welcome, Please click below to get started'),
+            ),
             ElevatedButton(
-                onPressed: () => Navigator.pushNamed(context, '/sign_in'),
-                child: const Text('Sign in ')),
-            TextButton(
-                onPressed: () => Navigator.pushNamed(context, '/sign_up'),
-                child: const Text('Sign up free account'))
+                onPressed: () {
+                  context.read<AuthStateProvider>().setOnboardedState();
+                  GoRouter.of(context).push(SignInView.path);
+                },
+                child: const Text(' Get Started ')),
           ],
         ),
       ),
