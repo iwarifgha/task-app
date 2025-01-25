@@ -1,11 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:task_app/task_app/features/authentication/controller/service/auth_service.dart';
-import 'package:task_app/task_app/features/user/preferences/user_pref.dart';
+import 'package:task_app/task_app/features/user/common/pref/user_pref.dart';
 
 class AuthStateProvider extends ChangeNotifier {
   final _userPreferences = UserPreferences();
   final _authServiceProvider = TaskAppAuthServiceProvider();
-
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -18,15 +17,14 @@ class AuthStateProvider extends ChangeNotifier {
 
   _setSignedInState(bool value) async {
     final user = await _authServiceProvider.getAuthState();
-    if(user != null){
+    if (user != null) {
       _isSignedIn = await _userPreferences.setSignedInState(value);
       notifyListeners();
     }
     return;
   }
 
-
-  _setLoading(bool value){
+  _setLoading(bool value) {
     _isLoading = value;
     notifyListeners();
   }
@@ -43,7 +41,6 @@ class AuthStateProvider extends ChangeNotifier {
     _hasOnboarded = onBoardState;
     notifyListeners();
   }
-
 
   Future<void> signIn({required String email, required String password}) async {
     _setLoading(true);
@@ -70,7 +67,6 @@ class AuthStateProvider extends ChangeNotifier {
       _setLoading(false);
     }
   }
-
 
   void signOut() {
     try {

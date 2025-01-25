@@ -4,7 +4,7 @@ import 'package:task_app/task_app/features/authentication/controller/state/auth_
 import 'package:task_app/task_app/features/authentication/view/sign_in.dart';
 import 'package:task_app/task_app/features/authentication/view/sign_up.dart';
 import 'package:task_app/task_app/features/authentication/view/welcome.dart';
-import 'package:task_app/task_app/features/home/view/home.dart';
+import 'package:task_app/task_app/features/projects/view/projects_view.dart';
 
 
 

@@ -4,14 +4,12 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:task_app/task_app/features/authentication/controller/state/auth_state_provider.dart';
 
-
 class SignInView extends StatefulWidget {
   static String path = '/sign_in';
 
   const SignInView({super.key});
 
-
- @override
+  @override
   State<SignInView> createState() => _SignInViewState();
 }
 
@@ -19,6 +17,23 @@ class _SignInViewState extends State<SignInView> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
+  _login() {
+    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            elevation: 0,
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Colors.transparent,
+            content: SizedBox(
+              width: 100,
+              height: 80,
+              child: DecoratedBox(
+                  decoration:
+                      BoxDecoration(borderRadius: BorderRadius.circular(12))),
+            )),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,8 +58,8 @@ class _SignInViewState extends State<SignInView> {
             ),
             ElevatedButton(
                 onPressed: () {
-                  context.read<AuthStateProvider>().
-                  signIn(email: _emailController.text,
+                  context.read<AuthStateProvider>().signIn(
+                      email: _emailController.text,
                       password: _passwordController.text);
                   GoRouter.of(context).push('');
                 },

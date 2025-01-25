@@ -41,6 +41,7 @@ class FirebaseAuthService{
     try {
       await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
+          
     } catch (e) {
       throw Exception(e);
     }

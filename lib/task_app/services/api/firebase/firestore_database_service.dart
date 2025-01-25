@@ -1,48 +1,286 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:task_app/task_app/features/projects/model/project/projects_model.dart';
+import 'package:task_app/task_app/features/user/model/user_model.dart';
 
-import '../../../features/home/model/task_model.dart';
+import '../../../features/tasks/model/task/task_model.dart';
 
 class FirestoreDatabase {
   final _fireStore = FirebaseFirestore.instance;
+  final _auth = FirebaseAuth.instance;
+//----------------TASKS METHODS-------------------//
 
-  Future<void> addTask(Task task) async {
+  Future<Task> addTask(
+      {required String projectId,
+      required String title,
+      required String description,
+      required DateTime startTime,
+      required DateTime endTime}) async {
+    final doc = await FirebaseFirestore.instance
+        .collection('projects')
+        .doc(projectId)
+        .collection('tasks')
+        .add({
+      'title': title,
+      'description': description,
+      'startTime': startTime.toIso8601String(),
+      'endTime': endTime.toIso8601String(),
+      'created_at': FieldValue.serverTimestamp()
+    });
+    final docSnapshot = await doc.get();
+    final taskData = docSnapshot.data();
+
+    if (taskData == null) {
+      throw Exception('task not found');
+    }
+    return Task.fromMap(taskData, taskId: doc.id);
+  }
+
+  Future<Task> getSingleTask({
+    required String projectId,
+    required String taskId,
+  }) async {
     try {
-      await _fireStore.collection('tasks').doc(null).set(task.toMap());
+      final snapshot = await _fireStore
+          .collection('projects')
+          .doc(projectId)
+          .collection('tasks')
+          .doc(taskId)
+          .get();
+      final data = snapshot.data();
+      if (data != null) {
+        return Task.fromMap(
+          data,
+          taskId: data['task_id'],
+        );
+      }
+      throw Exception('Project not found');
     } catch (e) {
-      throw Exception(e);
+      throw Exception(e.toString());
     }
   }
 
-  Future<List<Task>> fetchTasks(String userId) async {
+  Future<List<Task>> fetchTasks(String projectId) async {
     try {
       final snapshot = await _fireStore
+          .collection('projects')
+          .doc(projectId)
           .collection('tasks')
-          .where('userId', isEqualTo: userId)
           .get();
       return snapshot.docs.map((doc) {
         final data = doc.data();
-        return Task.fromMap(data, doc.id);
+        return Task.fromMap(
+          data,
+          taskId: data['task_id'],
+        );
       }).toList();
     } catch (e) {
       throw Exception(e);
     }
   }
 
-  Future<void> updateTask(Task task) async {
+  Future<void> updateTask(
+      {required String projectId,
+      required String taskId,
+      required Map<String, dynamic> updatedFields}) async {
     try {
-      await _fireStore.collection('tasks').doc(task.id).update(task.toMap());
+      await FirebaseFirestore.instance
+          .collection('projects')
+          .doc(projectId)
+          .collection('tasks')
+          .doc(taskId)
+          .update(updatedFields);
+    } on Exception catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  Future<void> deleteTask(String projectId, String taskId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('projects')
+          .doc(projectId)
+          .collection('tasks')
+          .doc(taskId)
+          .delete();
+    } on Exception catch (e) {
+      throw Exception(e.toString);
+    }
+  }
+
+//----------------USER PROFILE METHODS-------------------//
+
+//CREATE USER PROFILE
+  Future<void> createUserProfile({required UserM user}) async {
+    DocumentReference userDoc = _fireStore.collection('users').doc(user.userId);
+
+    try {
+      // Check if user document already exists
+      DocumentSnapshot docSnapshot = await userDoc.get();
+
+      if (!docSnapshot.exists) {
+        // Add user data to Firestore
+        await userDoc.set({user.toMap()});
+      }
     } catch (e) {
       throw Exception(e);
     }
   }
 
-  Future<void> deleteTask(String taskId) async {
+//GET USER PROFILE
+  Future<UserM> getUserProfile({required String userId}) async {
     try {
-      await _fireStore.collection('tasks').doc(taskId).delete();
+      final snapshot = await _fireStore.collection('users').doc(userId).get();
+      final user = snapshot.data();
+      if (user != null) {
+        return UserM.fromMap(user);
+      }
+      throw Exception('User not found');
     } catch (e) {
       throw Exception(e);
     }
   }
 
+//UPDATE USER PROFILE DETAILS
+  Future<void> updateUserDetails({
+    required String uid,
+    String? displayName,
+    String? email,
+    String? photoUrl,
+  }) async {
+    try {
+      User? user = _auth.currentUser;
 
+      if (user == null) {
+        throw Exception('No user is currently logged in');
+      }
+
+      // Step 1: Update Firebase Auth
+      if (displayName != null || photoUrl != null) {
+        await user.updateDisplayName(displayName);
+        await user.updatePhotoURL(photoUrl);
+      }
+
+      if (email != null && email != user.email) {
+        await user.verifyBeforeUpdateEmail(email);
+      }
+
+      // Step 2: Update Firestore
+      Map<String, dynamic> updatedData = {
+        if (displayName != null) 'displayName': displayName,
+        if (email != null) 'email': email,
+        if (photoUrl != null) 'photoUrl': photoUrl,
+        'updatedAt': FieldValue.serverTimestamp(),
+      };
+
+      await _fireStore.collection('users').doc(uid).update(updatedData);
+
+      // Optionally: Reload Firebase Auth User
+      await user.reload();
+      print('User details updated successfully');
+    } catch (e) {
+      print('Error updating user details: $e');
+      rethrow; // Re-throw the error for the caller to handle
+    }
+  }
+
+//DELETE USER PROFILE
+  Future<void> deleteUserProfile(userId) async {
+    try {
+      final userInAuth = _auth.currentUser;
+      final userInFirestore = _fireStore.collection('users').doc(userId);
+
+      if (userInAuth == null) {
+        throw Exception('No user logged in');
+      }
+
+      //Delete from firebase Auth
+      await userInAuth.delete();
+
+      //delete from firestore
+      await userInFirestore.delete();
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+//----------------PROJECTS METHODS-------------------//
+
+  Future<void> addProject({required Project project}) async {
+    try {
+      final projectDoc = await _fireStore
+          .collection('projects')
+          .doc(project.projectId)
+          .set(project.toMap());
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  Future<List<Project>> fetchProjects(String userId) async {
+    try {
+      final snapshot = await _fireStore
+          .collection('projects')
+          .where('userId', isEqualTo: userId)
+          .get();
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        return Project.fromMap(data);
+      }).toList();
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  Future<Project> getSingleProject({required String projectId}) async {
+    try {
+      final snapshot =
+          await _fireStore.collection('projects').doc(projectId).get();
+      final data = snapshot.data();
+      if (data != null) {
+        return Project.fromMap(data);
+      }
+      throw Exception('Project not found');
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
+
+  Future<void> updateProject(
+      {required String projectId, String? title, String? duration}) async {
+    try {
+      final project = await getSingleProject(projectId: projectId);
+
+      Map<String, dynamic> updatedData = {
+        if (title != null) 'title': title,
+        if (duration != null) 'duration': duration,
+      };
+
+      await _fireStore
+          .collection('projects')
+          .doc(project.projectId)
+          .update(updatedData);
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  Future<void> deleteProject(String projectId) async {
+    final tasksCollection = FirebaseFirestore.instance
+        .collection('projects')
+        .doc(projectId)
+        .collection('tasks');
+
+    // Fetch all tasks and delete them
+    final tasksSnapshot = await tasksCollection.get();
+    for (var taskDoc in tasksSnapshot.docs) {
+      await taskDoc.reference.delete();
+    }
+
+    // Delete the project document
+    await FirebaseFirestore.instance
+        .collection('projects')
+        .doc(projectId)
+        .delete();
+  }
 }
