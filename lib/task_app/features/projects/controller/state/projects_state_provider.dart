@@ -1,38 +1,33 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:task_app/task_app/features/projects/controller/services/projects_service_provider.dart';
 import 'package:task_app/task_app/features/projects/model/project/projects_model.dart';
 
 import '../../../../services/api/firebase/firebase_auth_service.dart';
 import '../../../../services/api/firebase/firestore_database_service.dart';
-import '../../../tasks/model/task/task_model.dart';
 import 'package:uuid/uuid.dart';
 
 class ProjectsStateProvider with ChangeNotifier {
   List<Project> _projects = [];
 
   List<Project> get tasks => _projects;
-  final _firebaseAuthProvider = FirebaseAuthService();
-  var uuid = Uuid();
-  final _fireStoreDatabaseServiceProvider = FirestoreDatabase();
+  final _projectServiceProvider = ProjectsServiceProvider();
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
   Future<void> addProject(
-      {required String title, duration, goal, timeCreated}) async {
-    final currentUser = _firebaseAuthProvider.getUser();
-
-    final project = Project(
-        projectId: uuid.v4(),
-        userId: currentUser.uid,
-        title: title,
-        goal: goal,
-        duration: duration,
-        tasks: [],
-        timeCreated: Timestamp.now().toString());
-
+      {required String title,
+      required String duration,
+      required String goal,
+      required String timeCreated}) async {
     try {
-      await _fireStoreDatabaseServiceProvider.addProject(project: project);
+      final project = await _projectServiceProvider.addProject(
+          title: title,
+          duration: duration,
+          goal: goal,
+          timeCreated: timeCreated,
+          tasks: []);
       _projects.add(project);
       _errorMessage = null;
       notifyListeners();
@@ -45,7 +40,7 @@ class ProjectsStateProvider with ChangeNotifier {
 
   Future<void> fetchProjects(String userId) async {
     try {
-      _projects = await _fireStoreDatabaseServiceProvider.fetchProjects(userId);
+      _projects = await _projectServiceProvider.fetchProjects(userId);
       _errorMessage = null;
       notifyListeners();
     } catch (e) {
@@ -57,7 +52,7 @@ class ProjectsStateProvider with ChangeNotifier {
 
   Future<void> deleteProject(String projectId) async {
     try {
-      await _fireStoreDatabaseServiceProvider.deleteProject(projectId);
+      await _projectServiceProvider.deleteProject(projectId);
       _projects.removeWhere((project) => project.projectId == projectId);
       _errorMessage = null;
       notifyListeners();
@@ -85,8 +80,12 @@ class ProjectsStateProvider with ChangeNotifier {
           tasks: specificProject.tasks,
           timeCreated: specificProject.timeCreated);
 
-      await _fireStoreDatabaseServiceProvider.updateProject(projectId: '');
-      _projects[projectIndex] = editedProject;
+      final newProject = await _projectServiceProvider.editProject(
+          projectId: editedProject.projectId,
+          title: editedProject.title,
+          duration: editedProject.duration
+          );
+      _projects[projectIndex] = newProject;
       _errorMessage = null;
       notifyListeners();
     } catch (e) {

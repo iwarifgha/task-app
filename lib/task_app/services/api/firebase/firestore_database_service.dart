@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:task_app/task_app/features/projects/model/project/projects_model.dart';
-import 'package:task_app/task_app/features/user/model/user_model.dart';
+import 'package:task_app/task_app/features/user_profile/model/user_model.dart';
 
 import '../../../features/tasks/model/task/task_model.dart';
 
@@ -246,11 +246,9 @@ class FirestoreDatabase {
     }
   }
 
-  Future<void> updateProject(
+  Future<Project> updateProject(
       {required String projectId, String? title, String? duration}) async {
     try {
-      final project = await getSingleProject(projectId: projectId);
-
       Map<String, dynamic> updatedData = {
         if (title != null) 'title': title,
         if (duration != null) 'duration': duration,
@@ -258,8 +256,11 @@ class FirestoreDatabase {
 
       await _fireStore
           .collection('projects')
-          .doc(project.projectId)
+          .doc(projectId)
           .update(updatedData);
+
+      final project = await getSingleProject(projectId: projectId);
+      return project;
     } catch (e) {
       throw Exception(e);
     }

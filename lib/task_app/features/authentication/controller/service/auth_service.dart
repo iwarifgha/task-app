@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:task_app/task_app/features/user/controller/services/user_profile_service.dart';
+import 'package:task_app/task_app/features/user_profile/controller/services/user_profile_service.dart';
 
 import '../../../../services/api/firebase/firebase_auth_service.dart';
 
