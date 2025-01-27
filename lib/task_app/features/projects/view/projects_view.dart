@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:task_app/task_app/features/authentication/view/sign_in.dart';
 
 import '../../../utils/error_notifier.dart';
 import '../../authentication/controller/service/auth_service.dart';
 import '../../authentication/controller/state/auth_state_provider.dart';
 import '../controller/state/projects_state_provider.dart';
-import 'edit_task.dart';
 
-class HomeView extends StatefulWidget {
-  static const path = '/home';
-  const HomeView({super.key});
+class ProjectsView extends StatefulWidget {
+  static const path = '/projects';
+  const ProjectsView({super.key});
 
   @override
-  State<HomeView> createState() => _HomeViewState();
+  State<ProjectsView> createState() => _ProjectsViewState();
 }
 
-class _HomeViewState extends State<HomeView> {
+class _ProjectsViewState extends State<ProjectsView> {
   final authProvider = TaskAppAuthServiceProvider();
 
   @override
@@ -34,6 +35,7 @@ class _HomeViewState extends State<HomeView> {
 
   _signOut() {
     context.read<AuthStateProvider>().signOut();
+    context.go(SignInView.path);
   }
 
   @override
@@ -44,14 +46,9 @@ class _HomeViewState extends State<HomeView> {
     final user = authProvider.getCurrentUser();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Home'), actions: [
-        IconButton(
-            onPressed: () {
-              _signOut;
-              Navigator.of(context).pop;
-            },
-            icon: Icon(Icons.logout))
-      ]),
+      appBar: AppBar(
+          title: const Text('Projects'),
+          actions: [IconButton(onPressed: _signOut, icon: Icon(Icons.logout))]),
       body: errorMessage != null
           ? ErrorNotifier(
               message: errorMessage,

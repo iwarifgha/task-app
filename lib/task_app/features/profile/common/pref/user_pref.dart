@@ -11,12 +11,12 @@ class UserPreferences {
 
   Future<bool> getSignedInState() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(hasOnboardedKey) ?? false;
+    return prefs.getBool(isSignedInKey) ?? false;
   }
 
-  Future<bool> setSignedInState(bool isSignedIn) async {
+  Future<bool> setSignedInState() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.setBool(isSignedInKey, isSignedIn);
+    return prefs.setBool(isSignedInKey, true);
   }
 
   Future<bool> setOnboardedState() async {

@@ -15,15 +15,6 @@ class AuthStateProvider extends ChangeNotifier {
   bool _hasOnboarded = false;
   bool get hasOnboarded => _hasOnboarded;
 
-  _setSignedInState(bool value) async {
-    final user = await _authServiceProvider.getAuthState();
-    if (user != null) {
-      _isSignedIn = await _userPreferences.setSignedInState(value);
-      notifyListeners();
-    }
-    return;
-  }
-
   _setLoading(bool value) {
     _isLoading = value;
     notifyListeners();
@@ -31,8 +22,13 @@ class AuthStateProvider extends ChangeNotifier {
 
   Future<void> initializeAuthProvider() async {
     _hasOnboarded = await _userPreferences.getOnboardState();
-    final isSignedIn = await _userPreferences.getSignedInState();
-    _isSignedIn = isSignedIn;
+    _isSignedIn = await _userPreferences.getSignedInState();
+    notifyListeners();
+  }
+
+  Future<void> setSignedInState() async {
+    final signInState = await _userPreferences.setSignedInState();
+    _isSignedIn = signInState;
     notifyListeners();
   }
 
@@ -42,14 +38,19 @@ class AuthStateProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> signIn({required String email, required String password}) async {
+  Future<bool> signIn({required String email, required String password}) async {
     _setLoading(true);
     try {
       await Future.delayed(Duration(seconds: 5));
       _authServiceProvider.signIn(email: email, password: password);
-      _setSignedInState(true);
-      print('You are signed in $_isSignedIn');
-    } catch (e) {
+
+      final user = await _authServiceProvider.getAuthState();
+
+      if (user == null) {
+        return false;
+      }
+      return true;
+     } catch (e) {
       throw Exception('An error happened $e');
     } finally {
       _setLoading(false);
@@ -71,7 +72,6 @@ class AuthStateProvider extends ChangeNotifier {
   void signOut() {
     try {
       _authServiceProvider.signOut();
-      _setSignedInState(false);
       notifyListeners();
     } catch (e) {
       throw Exception(e.toString());
