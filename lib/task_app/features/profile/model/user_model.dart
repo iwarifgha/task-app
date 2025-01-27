@@ -1,11 +1,11 @@
 //Abstract class. Closed to modification.
-abstract class UserModel {
+abstract class UserProfileModel {
   final String userId;
   final String displayName;
   final String email;
   final String joined;
 
-  UserModel(
+  UserProfileModel(
       {required this.userId,
       required this.displayName,
       required this.email,
@@ -13,7 +13,7 @@ abstract class UserModel {
 }
 
 //App User. This can be modified in future in case of new user features.
-class UserM extends UserModel {
+class UserM extends UserProfileModel {
   UserM(
       {required super.userId,
       required super.displayName,

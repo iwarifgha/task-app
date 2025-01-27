@@ -39,7 +39,7 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
     final projectProvider = context.watch<ProjectsStateProvider>();
-    final projects = projectProvider.tasks;
+    final projects = projectProvider.projects;
     final errorMessage = projectProvider.errorMessage;
     final user = authProvider.getCurrentUser();
 
@@ -75,10 +75,7 @@ class _HomeViewState extends State<HomeView> {
                         child: Row(
                           children: [
                             IconButton(
-                                onPressed: () {
-                                   
-                                },
-                                icon: const Icon(Icons.edit)),
+                                onPressed: () {}, icon: const Icon(Icons.edit)),
                             IconButton(
                                 onPressed: () {
                                   projectProvider.clearError();

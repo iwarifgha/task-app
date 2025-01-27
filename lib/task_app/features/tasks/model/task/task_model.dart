@@ -2,8 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 abstract class TaskModel {
   final String timeCreated;
-  String title, description, startDate, endDate;
+  String title, description;
+  final DateTime startDate, endDate;
   final String taskId;
+  final bool isCompleted;
 
   TaskModel(
       {required this.timeCreated,
@@ -11,7 +13,9 @@ abstract class TaskModel {
       required this.description,
       required this.taskId,
       required this.startDate,
-      required this.endDate});
+      required this.endDate,
+      required this.isCompleted
+      });
 }
 
 class Task extends TaskModel {
@@ -21,27 +25,31 @@ class Task extends TaskModel {
       required super.description,
       required super.taskId,
       required super.startDate,
-      required super.endDate});
+      required super.endDate,
+      required super.isCompleted
+      });
 
   Map<String, dynamic> toMap() {
     return {
       'created_at': timeCreated,
       'title': title,
       'description': description,
-      'start_date': startDate,
-      'end_date': endDate,
-      'task_id' : taskId
+      'start_date': Timestamp.fromDate(startDate),
+      'end_date': Timestamp.fromDate(endDate),
+      'task_id': taskId,
+      'is_completed': isCompleted
     };
   }
 
   factory Task.fromMap(Map<String, dynamic> map, {required String taskId}) {
     return Task(
       taskId: taskId,
-      timeCreated: map['created_at']?? '',
+      timeCreated: map['created_at'] ?? '',
       title: map['title'] ?? '',
       description: map['description'] ?? '',
-      startDate: map['start_date'] ?? '',
-      endDate: map['start_date'] ?? '',
+      startDate: (map['start_date'] as Timestamp).toDate(),
+      endDate: (map['end_date'] as Timestamp).toDate(),
+      isCompleted: map['is_completed'] ?? false
     );
   }
 }

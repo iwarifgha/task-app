@@ -8,15 +8,19 @@ abstract class ProjectsModel {
   final String goal;
   final String duration;
   final String timeCreated;
+  final bool allTasksCompleted;
   final List<Task> tasks;
 
-  ProjectsModel({required this.timeCreated, 
+  ProjectsModel(
+      {required this.timeCreated,
       required this.projectId,
       required this.userId,
       required this.title,
       required this.goal,
       required this.duration,
-      required this.tasks});
+      required this.tasks,
+      required this.allTasksCompleted
+      });
 }
 
 //Project model
@@ -27,7 +31,10 @@ class Project extends ProjectsModel {
       required super.title,
       required super.goal,
       required super.duration,
-      required super.tasks, required super.timeCreated});
+      required super.tasks,
+      required super.timeCreated,
+      required super.allTasksCompleted
+      });
 
   Map<String, dynamic> toMap() {
     return {
@@ -48,6 +55,7 @@ class Project extends ProjectsModel {
         goal: json['description'] ?? '',
         duration: json['userId'] ?? '',
         timeCreated: json['created_at'] ?? '',
+        allTasksCompleted: json['all_tasks_completed'],
         tasks: List<Task>.from(json['tasks']));
   }
 }

@@ -25,6 +25,7 @@ class ProjectsServiceProvider {
         goal: goal,
         duration: duration,
         tasks: tasks,
+        allTasksCompleted: false,
         timeCreated: timeCreated);
     try {
       await _fireStoreDatabaseServiceProvider.addProject(project: project);

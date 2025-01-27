@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:task_app/task_app/features/projects/model/project/projects_model.dart';
-import 'package:task_app/task_app/features/user_profile/model/user_model.dart';
+import 'package:task_app/task_app/features/profile/model/user_model.dart';
 
 import '../../../features/tasks/model/task/task_model.dart';
 
@@ -10,30 +10,17 @@ class FirestoreDatabase {
   final _auth = FirebaseAuth.instance;
 //----------------TASKS METHODS-------------------//
 
-  Future<Task> addTask(
-      {required String projectId,
-      required String title,
-      required String description,
-      required DateTime startTime,
-      required DateTime endTime}) async {
+  Future<Task> addTask({required String projectId, required Task task}) async {
     final doc = await FirebaseFirestore.instance
         .collection('projects')
         .doc(projectId)
         .collection('tasks')
-        .add({
-      'title': title,
-      'description': description,
-      'startTime': startTime.toIso8601String(),
-      'endTime': endTime.toIso8601String(),
-      'created_at': FieldValue.serverTimestamp()
-    });
-    final docSnapshot = await doc.get();
-    final taskData = docSnapshot.data();
+        .doc()
+        .set(task.toMap());
 
-    if (taskData == null) {
-      throw Exception('task not found');
-    }
-    return Task.fromMap(taskData, taskId: doc.id);
+    final singleTask =
+        await getSingleTask(projectId: projectId, taskId: task.taskId);
+    return singleTask;
   }
 
   Future<Task> getSingleTask({
@@ -79,23 +66,24 @@ class FirestoreDatabase {
     }
   }
 
-  Future<void> updateTask(
+  Future<void> editTask(
       {required String projectId,
       required String taskId,
-      required Map<String, dynamic> updatedFields}) async {
+      required Map<String, dynamic> fieldsToUpdate}) async {
     try {
       await FirebaseFirestore.instance
           .collection('projects')
           .doc(projectId)
           .collection('tasks')
           .doc(taskId)
-          .update(updatedFields);
+          .update(fieldsToUpdate);
     } on Exception catch (e) {
       throw Exception(e);
     }
   }
 
-  Future<void> deleteTask(String projectId, String taskId) async {
+  Future<void> deleteTask(
+      {required String projectId, required String taskId}) async {
     try {
       await FirebaseFirestore.instance
           .collection('projects')
@@ -208,7 +196,7 @@ class FirestoreDatabase {
 
   Future<void> addProject({required Project project}) async {
     try {
-      final projectDoc = await _fireStore
+      await _fireStore
           .collection('projects')
           .doc(project.projectId)
           .set(project.toMap());

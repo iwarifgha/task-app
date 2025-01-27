@@ -1,17 +1,12 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:task_app/task_app/features/projects/controller/services/projects_service_provider.dart';
 import 'package:task_app/task_app/features/projects/model/project/projects_model.dart';
 
-import '../../../../services/api/firebase/firebase_auth_service.dart';
-import '../../../../services/api/firebase/firestore_database_service.dart';
-import 'package:uuid/uuid.dart';
-
 class ProjectsStateProvider with ChangeNotifier {
   List<Project> _projects = [];
 
-  List<Project> get tasks => _projects;
+  List<Project> get projects => _projects;
   final _projectServiceProvider = ProjectsServiceProvider();
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
@@ -70,21 +65,18 @@ class ProjectsStateProvider with ChangeNotifier {
           _projects.indexWhere((project) => project.projectId == projectId);
       if (projectIndex == -1) return;
 
-      final specificProject = _projects[projectIndex];
-      final editedProject = Project(
-          projectId: projectId,
-          userId: specificProject.userId,
-          title: title ?? specificProject.title,
-          goal: specificProject.goal,
-          duration: specificProject.duration,
-          tasks: specificProject.tasks,
-          timeCreated: specificProject.timeCreated);
+      // final specificProject = _projects[projectIndex];
+      // final editedProject = Project(
+      //     projectId: projectId,
+      //     userId: specificProject.userId,
+      //     title: title ?? specificProject.title,
+      //     goal: specificProject.goal,
+      //     duration: specificProject.duration,
+      //     tasks: specificProject.tasks,
+      //     timeCreated: specificProject.timeCreated);
 
       final newProject = await _projectServiceProvider.editProject(
-          projectId: editedProject.projectId,
-          title: editedProject.title,
-          duration: editedProject.duration
-          );
+          projectId: projectId, title: title, duration: duration);
       _projects[projectIndex] = newProject;
       _errorMessage = null;
       notifyListeners();

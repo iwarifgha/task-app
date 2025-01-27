@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:task_app/task_app/features/authentication/controller/service/auth_service.dart';
-import 'package:task_app/task_app/features/user_profile/common/pref/user_pref.dart';
+import 'package:task_app/task_app/features/profile/common/pref/user_pref.dart';
 
 class AuthStateProvider extends ChangeNotifier {
   final _userPreferences = UserPreferences();
